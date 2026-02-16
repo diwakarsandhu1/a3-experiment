@@ -1,9 +1,577 @@
-<!DOCTYPE html>
-<div id="container"></div>
-<script type="module">
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Assignment 3 — Visualization Experiment</title>
 
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+    <script src="https://d3js.org/d3.v7.min.js"></script>
 
-console.log(d3);
+    <style>
+      :root {
+        --bg: #ffffff;
+        --text: #0b0b0b;
+        --muted: #6b6b6b;
+        --line: #e9e9e9;
+        --btn: #0b0b0b;
+        --btnText: #ffffff;
+        --card: #ffffff;
+        --shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        --radius: 16px;
+        --mono:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        --sans:
+          ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+          Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: var(--sans);
+        color: var(--text);
+        background: var(--bg);
+      }
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 24px 16px 48px;
+      }
+      /* Status bar styles */
+      .status {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 14px 16px;
+        background: #fff;
+        box-shadow: var(--shadow);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .status-left {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .status-step {
+        font-family: var(--mono);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .status-title {
+        font-weight: 700;
+        font-size: 16px;
+        line-height: 1.2;
+      }
+      .status-right {
+        font-family: var(--mono);
+        font-size: 12px;
+        color: var(--muted);
+        text-align: right;
+        min-width: 180px;
+      }
 
-</script>
+      /* Panel styles for each screen */
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--card);
+        box-shadow: var(--shadow);
+        padding: 18px;
+      }
+      .panel h2 {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+      }
+      .panel p {
+        margin: 0 0 10px 0;
+        color: #222;
+        line-height: 1.5;
+      }
+      .muted {
+        color: var(--muted);
+      }
+
+      /* Visualization frame and placeholder styles */
+      .viz-frame {
+        margin-top: 14px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: #fff;
+        height: 320px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .viz-placeholder { 
+        font-family: var(--mono);
+        color: var(--muted);
+        font-size: 12px;
+        padding: 10px 12px;
+        border: 1px dashed #d6d6d6;
+        border-radius: 12px;
+        background: #fbfbfb;
+        text-align: center;
+        white-space: pre-wrap;
+        max-width: 90%;
+      }
+
+      /* Form styles for inputs and buttons */
+      .row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+        align-items: flex-end;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        font-family: var(--mono);
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+      input[type="text"],
+      input[type="number"] {
+        width: 220px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        font-size: 14px;
+        outline: none;
+      }
+      input[type="number"] {
+        width: 160px;
+      }
+      input:focus {
+        border-color: #bdbdbd;
+      }
+
+      .btn {
+        appearance: none;
+        border: 1px solid #0b0b0b;
+        background: var(--btn);
+        color: var(--btnText);
+        padding: 10px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          transform 0.02s ease,
+          opacity 0.2s ease;
+        user-select: none;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn.secondary {
+        background: #fff;
+        color: #0b0b0b;
+      }
+      .btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 180px;
+        padding: 12px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        font-family: var(--mono);
+        font-size: 12px;
+        outline: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <!-- Status bar -->
+      <div class="status">
+        <div class="status-left">
+          <div class="status-step" id="statusStep">STEP: WELCOME</div>
+          <div class="status-title" id="statusTitle">
+            Visualization Experiment
+          </div>
+        </div>
+        <div class="status-right" id="statusRight">
+          Participant: <span id="statusPid">—</span><br />
+          Trial: <span id="statusTrial">—</span> /
+          <span id="statusTotal">—</span>
+        </div>
+      </div>
+
+      <!-- WELCOME -->
+      <section class="panel" id="screenWelcome">
+        <h2>Welcome</h2>
+        <p>
+          You will complete a short series of visual comparison trials. Each
+          trial shows two marked values. Your task is to estimate:
+          <b>“What percent is the smaller of the larger?”</b>
+        </p>
+        <p class="muted">Keep your best guess—don’t overthink it.</p>
+
+        <div class="row">
+          <div>
+            <label for="pidInput">PARTICIPANT ID (Provided to Participant)</label>
+            <input
+              id="pidInput"
+              type="text"
+              placeholder="e.g., 001, 002, etc."
+              autocomplete="off"
+            />
+          </div>
+          <button class="btn" id="btnWelcomeNext">Continue</button>
+        </div>
+      </section>
+
+      <!-- INSTRUCTIONS -->
+      <section class="panel hidden" id="screenInstructions">
+        <h2>Instructions</h2>
+        <p>
+          On each trial, two data points are marked. Enter the percentage:
+          <b>(smaller ÷ larger) × 100</b>
+        </p>
+        <p class="muted">
+          Example: if you think it’s about half, enter <b>50</b>.
+        </p>
+
+        <div class="row">
+          <button class="btn" id="btnStart">Start Trials</button>
+          <button class="btn secondary" id="btnBackToWelcome">Back</button>
+        </div>
+      </section>
+
+      <!-- TRIAL -->
+      <section class="panel hidden" id="screenTrial">
+        <h2>Trial</h2>
+
+        <!-- Visualization Frame -->
+        <div class="viz-frame" id="vizFrame">
+          <div class="viz-placeholder" id="vizPlaceholder">
+            TODO: render visualization here with D3, based on trial.condition,
+            trial.values, and trial.marked
+          </div>
+        </div>
+
+        <!-- Response -->
+        <div class="row">
+          <div>
+            <label for="responseInput">YOUR ANSWER (%)</label>
+            <input
+              id="responseInput"
+              type="number"
+              min="0"
+              max="100"
+              step="1"
+              placeholder="0–100"
+            />
+          </div>
+
+          <button class="btn" id="btnSubmit">Submit</button>
+        </div>
+      </section>
+
+      <!-- END -->
+      <section class="panel hidden" id="screenEnd">
+        <h2>Done</h2>
+        <p>Thank you! Below are a copy of your results in CSV format.</p>
+
+        <div class="row">
+          <button class="btn" id="btnGenerateCSV">Generate CSV</button>
+          <button class="btn secondary" id="btnRestart">Restart</button>
+        </div>
+
+        <div style="margin-top: 12px">
+          <label for="csvOutput">CSV OUTPUT</label>
+          <textarea
+            id="csvOutput"
+            placeholder="TODO: export CSV here"
+          ></textarea>
+        </div>
+      </section>
+    </div>
+
+    <script>
+      // App state for status bar, trial generation, and results storage
+      const state = {
+        participantId: null,
+        trialIndex: 0,
+        trials: [],
+        results: [],
+        config: {
+          trialsPerCondition: 20,
+          conditions: ["condition1", "condition2", "condition3"],
+          nValues: 10,
+          valueMin: 0,
+          valueMax: 100,
+        },
+      };
+
+      // Screen helpers for showing/hiding and status bar updates
+      const el = (id) => document.getElementById(id);
+      const screens = {
+        welcome: el("screenWelcome"),
+        instructions: el("screenInstructions"),
+        trial: el("screenTrial"),
+        end: el("screenEnd"),
+      };
+
+      function showScreen(name) {
+        Object.values(screens).forEach((s) => s.classList.add("hidden"));
+        screens[name].classList.remove("hidden");
+      }
+
+      function setStatus({ step, title, pid, trial, total }) {
+        if (step) el("statusStep").textContent = `STEP: ${step}`;
+        if (title) el("statusTitle").textContent = title;
+        if (pid !== undefined) el("statusPid").textContent = pid ?? "—";
+        if (trial !== undefined) el("statusTrial").textContent = trial ?? "—";
+        if (total !== undefined) el("statusTotal").textContent = total ?? "—";
+      }
+
+      // Trial generation (marked are based of indices of values array, not the actual values, can change if needed)
+      function randomInt(min, maxInclusive) {
+        return Math.floor(Math.random() * (maxInclusive - min + 1)) + min;
+      }
+
+      function generateValues(n, min, max) {
+        const arr = [];
+        for (let i = 0; i < n; i++) arr.push(randomInt(min, max));
+        return arr;
+      }
+
+      function pickTwoDistinctIndices(n) {
+        const i = randomInt(0, n - 1);
+        let j = randomInt(0, n - 1);
+        while (j === i) j = randomInt(0, n - 1);
+        return [i, j];
+      }
+
+      function buildTrials() {
+        const trials = [];
+        const { conditions, trialsPerCondition, nValues, valueMin, valueMax } =
+          state.config;
+
+        conditions.forEach((cond) => {
+          for (let t = 0; t < trialsPerCondition; t++) {
+            const values = generateValues(nValues, valueMin, valueMax);
+            const [a, b] = pickTwoDistinctIndices(nValues);
+            trials.push({
+              condition: cond,
+              values,
+              marked: [a, b],
+            });
+          }
+        });
+
+        // Shuffle trials
+        for (let k = trials.length - 1; k > 0; k--) {
+          const r = Math.floor(Math.random() * (k + 1));
+          [trials[k], trials[r]] = [trials[r], trials[k]];
+        }
+
+        return trials;
+      }
+
+      // Render visualization based on trial data (currently just a placeholder, needs to be implemented)
+      function clearViz() {
+        const frame = el("vizFrame");
+        frame.querySelectorAll("svg").forEach((s) => s.remove());
+        el("vizPlaceholder").classList.remove("hidden");
+      }
+
+      function renderTrial(trial) {
+        clearViz();
+
+        // To Do: use D3 to render a visualization based on trial.condition, trial.values, and trial.marked
+        // Probably just use a switch statement on trial.condition
+        // Will then need to implement d3 code for each condition type (bar chart, scatterplot, etc.)
+
+        el("vizPlaceholder").textContent =
+          `TODO: render visualization\ncondition="${trial.condition}"\nmarked=[${trial.marked.join(",")}]\nvalues=${trial.values.join(",")}`;
+
+        el("condName").textContent = trial.condition;
+      }
+
+      // Flow control for starting experiment, loading trials, submitting responses, and ending experiment
+      function startExperiment() {
+        state.trials = buildTrials();
+        state.results = [];
+        state.trialIndex = 0;
+
+        setStatus({
+          step: "TRIALS",
+          title: "Estimate the percentage",
+          pid: state.participantId,
+          trial: 1,
+          total: state.trials.length,
+        });
+
+        showScreen("trial");
+        loadCurrentTrial();
+      }
+
+      function loadCurrentTrial() {
+        const trial = state.trials[state.trialIndex];
+        el("responseInput").value = "";
+        el("responseInput").focus();
+
+        renderTrial(trial);
+
+        setStatus({
+          step: "TRIALS",
+          title: "Estimate the percentage",
+          pid: state.participantId,
+          trial: state.trialIndex + 1,
+          total: state.trials.length,
+        });
+      }
+
+      // TODO: make sure to require a response and also do the math logic
+      function submitResponse() {
+        const trial = state.trials[state.trialIndex];
+
+        let reported = Number(el("responseInput").value);
+        if (!Number.isFinite(reported) || reported < 0 || reported > 100) {
+          alert("Please enter a whole percentage from 0 to 100.");
+          return;
+        }
+        reported = Math.round(reported);
+
+        state.results.push({
+          participantId: state.participantId,
+          trialNumber: state.trialIndex + 1,
+          condition: trial.condition,
+          values: JSON.stringify(trial.values),
+          marked: JSON.stringify(trial.marked),
+          reportedPercent: reported,
+          truePercent: "", // TODO
+          log2Error: "", // TODO
+        });
+
+        state.trialIndex += 1;
+        if (state.trialIndex >= state.trials.length) {
+          endExperiment();
+        } else {
+          loadCurrentTrial();
+        }
+      }
+
+      function endExperiment() {
+        setStatus({
+          step: "END",
+          title: "Experiment complete",
+          pid: state.participantId,
+          trial: state.trials.length,
+          total: state.trials.length,
+        });
+
+        showScreen("end");
+        el("csvOutput").value = "";
+        console.log("TODO: export CSV", state.results);
+      }
+
+      function resultsToCSV(rows) {
+        const headers = Object.keys(
+          rows[0] || {
+            participantId: "",
+            trialNumber: "",
+            condition: "",
+            values: "",
+            marked: "",
+            reportedPercent: "",
+            truePercent: "",
+            log2Error: "",
+          },
+        );
+
+        const escape = (v) => {
+          const s = String(v ?? "");
+          if (/[,"\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+          return s;
+        };
+
+        const lines = [];
+        lines.push(headers.join(","));
+        for (const r of rows) {
+          lines.push(headers.map((h) => escape(r[h])).join(","));
+        }
+        return lines.join("\n");
+      }
+
+      // Event listeners for buttons and inputs
+      el("btnWelcomeNext").addEventListener("click", () => {
+        const pid = el("pidInput").value.trim();
+        if (!pid) {
+          alert("Please enter a Participant ID.");
+          return;
+        }
+        state.participantId = pid;
+
+        setStatus({ step: "INSTRUCTIONS", title: "Read instructions", pid });
+        showScreen("instructions");
+      });
+
+      el("btnBackToWelcome").addEventListener("click", () => {
+        setStatus({
+          step: "WELCOME",
+          title: "Visualization Experiment",
+          pid: "—",
+          trial: "—",
+          total: "—",
+        });
+        showScreen("welcome");
+      });
+
+      el("btnStart").addEventListener("click", () => startExperiment());
+
+      el("btnSubmit").addEventListener("click", () => submitResponse());
+
+      el("responseInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") submitResponse();
+      });
+
+      el("btnGenerateCSV").addEventListener("click", () => {
+        const csv = resultsToCSV(state.results);
+        el("csvOutput").value = csv;
+        console.log("CSV generated. TODO: download/save", csv);
+      });
+
+      el("btnRestart").addEventListener("click", () => {
+        state.participantId = null;
+        state.trials = [];
+        state.results = [];
+        state.trialIndex = 0;
+
+        el("pidInput").value = "";
+        setStatus({
+          step: "WELCOME",
+          title: "Visualization Experiment",
+          pid: "—",
+          trial: "—",
+          total: "—",
+        });
+        showScreen("welcome");
+      });
+
+      // Initialize app by showing welcome screen and setting status
+      setStatus({ step: "WELCOME", title: "Visualization Experiment" });
+      showScreen("welcome");
+    </script>
+  </body>
+</html>
