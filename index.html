@@ -39,6 +39,7 @@
         margin: 0 auto;
         padding: 24px 16px 48px;
       }
+      
       /* Status bar styles */
       .status {
         border: 1px solid var(--line);
@@ -111,7 +112,7 @@
         position: relative;
         overflow: hidden;
       }
-      .viz-placeholder { 
+      .viz-placeholder {
         font-family: var(--mono);
         color: var(--muted);
         font-size: 12px;
@@ -227,7 +228,9 @@
 
         <div class="row">
           <div>
-            <label for="pidInput">PARTICIPANT ID (Provided to Participant)</label>
+            <label for="pidInput"
+              >PARTICIPANT ID (Provided to Participant)</label
+            >
             <input
               id="pidInput"
               type="text"
@@ -263,8 +266,6 @@
         <!-- Visualization Frame -->
         <div class="viz-frame" id="vizFrame">
           <div class="viz-placeholder" id="vizPlaceholder">
-            TODO: render visualization here with D3, based on trial.condition,
-            trial.values, and trial.marked
           </div>
         </div>
 
@@ -292,7 +293,6 @@
         <p>Thank you! Below are a copy of your results in CSV format.</p>
 
         <div class="row">
-          <button class="btn" id="btnGenerateCSV">Generate CSV</button>
           <button class="btn secondary" id="btnRestart">Restart</button>
         </div>
 
@@ -300,7 +300,6 @@
           <label for="csvOutput">CSV OUTPUT</label>
           <textarea
             id="csvOutput"
-            placeholder="TODO: export CSV here"
           ></textarea>
         </div>
       </section>
@@ -315,7 +314,7 @@
         results: [],
         config: {
           trialsPerCondition: 20,
-          conditions: ["condition1", "condition2", "condition3"],
+          conditions: ["Bar", "StackedBar", "ComparativeBar"],
           nValues: 10,
           valueMin: 0,
           valueMax: 100,
@@ -388,7 +387,6 @@
         return trials;
       }
 
-      // Render visualization based on trial data (currently just a placeholder, needs to be implemented)
       function clearViz() {
         const frame = el("vizFrame");
         frame.querySelectorAll("svg").forEach((s) => s.remove());
@@ -398,12 +396,266 @@
       function renderTrial(trial) {
         clearViz();
 
-        // To Do: use D3 to render a visualization based on trial.condition, trial.values, and trial.marked
-        // Probably just use a switch statement on trial.condition
-        // Will then need to implement d3 code for each condition type (bar chart, scatterplot, etc.)
+        switch (trial.condition) {
+          case "Bar":
+            renderBar(trial);
+            break;
 
-        el("vizPlaceholder").textContent =
-          `TODO: render visualization\ncondition="${trial.condition}"\nmarked=[${trial.marked.join(",")}]\nvalues=${trial.values.join(",")}`;
+          case "StackedBar":
+            renderStackedBar(trial);
+            break;
+
+          case "ComparativeBar":
+            renderComparativeBar(trial);
+            break;
+        }
+      }
+
+      // Render different Charts
+      function renderBar(trial) {
+        const frame = document.getElementById("vizFrame");
+        const placeholder = document.getElementById("vizPlaceholder");
+        if (placeholder) placeholder.classList.add("hidden");
+
+        const width = frame.clientWidth;
+        const height = frame.clientHeight;
+
+        const margin = { top: 16, right: 16, bottom: 32, left: 38 };
+        const innerW = width - margin.left - margin.right;
+        const innerH = height - margin.top - margin.bottom;
+
+        const values = trial.values;
+        const markedSet = new Set(trial.marked);
+
+        const x = d3
+          .scaleBand()
+          .domain(d3.range(values.length))
+          .range([0, innerW])
+          .padding(0.18);
+
+        const y = d3.scaleLinear().domain([0, 100]).range([innerH, 0]);
+
+        const svg = d3
+          .select(frame)
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+        const g = svg
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        g.append("g")
+          .call(d3.axisLeft(y).ticks(10).tickSize(-innerW).tickFormat(""))
+          .call((ax) =>
+            ax
+              .selectAll(".tick line")
+              .attr("stroke", "#000")
+              .attr("opacity", 0.12),
+          )
+          .call((ax) => ax.selectAll(".domain").remove());
+
+        g.selectAll("rect")
+          .data(values.map((v, i) => ({ v, i })))
+          .join("rect")
+          .attr("x", (d) => x(d.i))
+          .attr("y", (d) => y(d.v))
+          .attr("width", x.bandwidth())
+          .attr("height", (d) => innerH - y(d.v))
+          .attr("fill", (d) => (markedSet.has(d.i) ? "#c65a5a" : "#bdbdbd"))
+          .attr("stroke", "#000")
+          .attr("stroke-width", 1);
+
+        g.append("g")
+          .attr("transform", `translate(0,${innerH})`)
+          .call(d3.axisBottom(x).tickValues(d3.range(values.length)))
+          .call((ax) => ax.selectAll("text").attr("font-size", 10))
+          .call((ax) =>
+            ax.selectAll(".domain, .tick line").attr("stroke", "#000"),
+          );
+
+        g.append("g")
+          .call(d3.axisLeft(y).ticks(10))
+          .call((ax) => ax.selectAll("text").attr("font-size", 10))
+          .call((ax) =>
+            ax.selectAll(".domain, .tick line").attr("stroke", "#000"),
+          );
+      }
+
+      function renderStackedBar(trial) {
+        const frame = document.getElementById("vizFrame");
+        const placeholder = document.getElementById("vizPlaceholder");
+        if (placeholder) placeholder.classList.add("hidden");
+
+        const width = frame.clientWidth;
+        const height = frame.clientHeight;
+
+        const margin = { top: 16, right: 16, bottom: 22, left: 44 };
+        const innerW = width - margin.left - margin.right;
+        const innerH = height - margin.top - margin.bottom;
+
+        const values = trial.values;
+        const markedSet = new Set(trial.marked);
+
+        const y = d3.scaleLinear().domain([0, 100]).range([innerH, 0]);
+
+        const svg = d3
+          .select(frame)
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+        const g = svg
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        const barW = Math.min(170, innerW * 0.45);
+        const barX = (innerW - barW) / 2;
+
+        g.append("g")
+          .call(d3.axisLeft(y).ticks(10).tickSize(-innerW).tickFormat(""))
+          .call((ax) =>
+            ax
+              .selectAll(".tick line")
+              .attr("stroke", "#000")
+              .attr("opacity", 0.12),
+          )
+          .call((ax) => ax.selectAll(".domain").remove());
+
+        const defs = svg.append("defs");
+        const gradId = "trackGrad";
+
+        const grad = defs
+          .append("linearGradient")
+          .attr("id", gradId)
+          .attr("x1", "0%")
+          .attr("y1", "100%")
+          .attr("x2", "0%")
+          .attr("y2", "0%");
+
+        grad.append("stop").attr("offset", "0%").attr("stop-color", "#d6d6d6");
+        grad.append("stop")
+          .attr("offset", "100%")
+          .attr("stop-color", "#f5f5f5");
+
+        g.append("rect")
+          .attr("x", barX)
+          .attr("y", y(100))
+          .attr("width", barW)
+          .attr("height", y(0) - y(100))
+          .attr("fill", `url(#${gradId})`)
+          .attr("stroke", "#000")
+          .attr("stroke-width", 1);
+
+        const ticks = values.map((v, i) => {
+          const vClamped = Math.max(0, Math.min(100, v));
+          return { v: vClamped, i, yPos: y(vClamped) };
+        });
+
+        const x1 = barX;
+        const x2 = barX + barW;
+
+        g.selectAll(".break")
+          .data(ticks.filter((d) => !markedSet.has(d.i)))
+          .join("line")
+          .attr("class", "break")
+          .attr("x1", x1)
+          .attr("x2", x2)
+          .attr("y1", (d) => d.yPos)
+          .attr("y2", (d) => d.yPos)
+          .attr("stroke", "#000")
+          .attr("stroke-width", 1);
+
+        g.selectAll(".break-marked")
+          .data(ticks.filter((d) => markedSet.has(d.i)))
+          .join("line")
+          .attr("class", "break-marked")
+          .attr("x1", x1)
+          .attr("x2", x2)
+          .attr("y1", (d) => d.yPos)
+          .attr("y2", (d) => d.yPos)
+          .attr("stroke", "#c65a5a")
+          .attr("stroke-width", 2.5)
+          .attr("opacity", 0.9);
+
+        g.append("g")
+          .call(d3.axisLeft(y).ticks(10).tickSize(0))
+          .call((ax) => ax.selectAll("text").attr("font-size", 10))
+          .call((ax) => ax.selectAll(".domain").attr("stroke", "#000"))
+          .call((ax) => ax.selectAll(".tick line").remove());
+      }
+
+      function renderComparativeBar(trial) {
+        const frame = document.getElementById("vizFrame");
+        const placeholder = document.getElementById("vizPlaceholder");
+        if (placeholder) placeholder.classList.add("hidden");
+
+        const width = frame.clientWidth;
+        const height = frame.clientHeight;
+
+        const margin = { top: 16, right: 16, bottom: 32, left: 38 };
+        const innerW = width - margin.left - margin.right;
+        const innerH = height - margin.top - margin.bottom;
+
+        const values = trial.values.map((v) => Math.max(0, Math.min(100, v)));
+        const markedSet = new Set(trial.marked);
+
+        const x = d3
+          .scaleBand()
+          .domain(d3.range(values.length))
+          .range([0, innerW])
+          .paddingInner(0)
+          .paddingOuter(0);
+
+        const y = d3.scaleLinear().domain([0, 100]).range([innerH, 0]);
+
+        const svg = d3
+          .select(frame)
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+        const g = svg
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        g.append("g")
+          .call(d3.axisLeft(y).ticks(10).tickSize(-innerW).tickFormat(""))
+          .call((ax) =>
+            ax
+              .selectAll(".tick line")
+              .attr("stroke", "#000")
+              .attr("opacity", 0.12),
+          )
+          .call((ax) => ax.selectAll(".domain").remove());
+
+        g.selectAll("rect")
+          .data(values.map((v, i) => ({ v, i })))
+          .join("rect")
+          .attr("x", (d) => x(d.i))
+          .attr("y", (d) => y(d.v))
+          .attr("width", x.bandwidth())
+          .attr("height", (d) => innerH - y(d.v))
+          .attr("fill", (d) => (markedSet.has(d.i) ? "#c65a5a" : "#bdbdbd"))
+          .attr("stroke", "#000")
+          .attr("stroke-width", 1);
+
+        const tickIdx = d3.range(values.length);
+
+        g.append("g")
+          .attr("transform", `translate(0,${innerH})`)
+          .call(d3.axisBottom(x).tickValues(tickIdx))
+          .call((ax) => ax.selectAll("text").attr("font-size", 10))
+          .call((ax) =>
+            ax.selectAll(".domain, .tick line").attr("stroke", "#000"),
+          );
+
+        g.append("g")
+          .call(d3.axisLeft(y).ticks(10))
+          .call((ax) => ax.selectAll("text").attr("font-size", 10))
+          .call((ax) =>
+            ax.selectAll(".domain, .tick line").attr("stroke", "#000"),
+          );
       }
 
       // Flow control for starting experiment, loading trials, submitting responses, and ending experiment
@@ -440,16 +692,41 @@
         });
       }
 
-      // TODO: make sure to require a response and also do the math logic
+      function computeTruePercent(values, marked) {
+        const i = marked[0];
+        const j = marked[1];
+
+        const a = values[i];
+        const b = values[j];
+
+        const smaller = Math.min(a, b);
+        const larger = Math.max(a, b);
+
+        if (larger === 0) return 0;
+        return Math.round((smaller / larger) * 100);
+      }
+
       function submitResponse() {
         const trial = state.trials[state.trialIndex];
 
-        let reported = Number(el("responseInput").value);
+        const raw = el("responseInput").value;
+
+        if (raw == null || String(raw).trim() === "") {
+          alert("Please enter a whole percentage from 0 to 100.");
+          return;
+        }
+
+        let reported = Number(raw);
+
         if (!Number.isFinite(reported) || reported < 0 || reported > 100) {
           alert("Please enter a whole percentage from 0 to 100.");
           return;
         }
         reported = Math.round(reported);
+
+        const truePercent = computeTruePercent(trial.values, trial.marked);
+        const absErr = Math.abs(reported - truePercent);
+        const log2Error = Math.log2(absErr + 1 / 8);
 
         state.results.push({
           participantId: state.participantId,
@@ -458,8 +735,8 @@
           values: JSON.stringify(trial.values),
           marked: JSON.stringify(trial.marked),
           reportedPercent: reported,
-          truePercent: "", // TODO
-          log2Error: "", // TODO
+          truePercent: truePercent,
+          log2Error: log2Error,
         });
 
         state.trialIndex += 1;
@@ -480,8 +757,7 @@
         });
 
         showScreen("end");
-        el("csvOutput").value = "";
-        console.log("TODO: export CSV", state.results);
+        el("csvOutput").value = resultsToCSV(state.results);
       }
 
       function resultsToCSV(rows) {
@@ -542,12 +818,6 @@
 
       el("responseInput").addEventListener("keydown", (e) => {
         if (e.key === "Enter") submitResponse();
-      });
-
-      el("btnGenerateCSV").addEventListener("click", () => {
-        const csv = resultsToCSV(state.results);
-        el("csvOutput").value = csv;
-        console.log("CSV generated. TODO: download/save", csv);
       });
 
       el("btnRestart").addEventListener("click", () => {

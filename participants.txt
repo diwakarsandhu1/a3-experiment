@@ -4,13 +4,13 @@ need 10 participants to reach the 200 trials per condition requirement.
 List people we can ask:
 
 ParticipantID   Name
-001             TBD
-002             TBD
-003             TBD
-004             TBD
-005             TBD
-006             TBD
-007             TBD
-008             TBD
-009             TBD
-010             TBD
+001             Lutz
+002             Marsh
+003             Pat
+004             Maher
+005             Adrian
+006             DeBrito
+007             Bennet
+008             Butters
+009             McVeigh
+010             Bailey
