@@ -6,9 +6,9 @@ List people we can ask:
 ParticipantID   Name
 001             Lutz
 002             Marsh
-003             Pat
+003             Pat (mostly size ratio, sometimes the math. If the bars were further, would rely on the math.)
 004             Maher (didn't look at numbers, looked at proportions)
-005             Adrian
+005             Adrian (done)
 006             DeBrito
 007             Bennet
 008             Butters
