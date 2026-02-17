@@ -7,7 +7,7 @@ ParticipantID   Name
 001             Lutz
 002             Marsh
 003             Pat
-004             Maher
+004             Maher (didn't look at numbers, looked at proportions)
 005             Adrian
 006             DeBrito
 007             Bennet
