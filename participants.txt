@@ -4,7 +4,7 @@ need 10 participants to reach the 200 trials per condition requirement.
 List people we can ask:
 
 ParticipantID   Name
-001             Lutz
+001             Lutz (did not understand what stacked bar was showing)
 002             Marsh
 003             Pat (mostly size ratio, sometimes the math. If the bars were further, would rely on the math.)
 004             Maher (didn't look at numbers, looked at proportions)
