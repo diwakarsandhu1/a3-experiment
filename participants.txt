@@ -9,7 +9,7 @@ ParticipantID   Name
 003             Pat (mostly size ratio, sometimes the math. If the bars were further, would rely on the math.)
 004             Maher (didn't look at numbers, looked at proportions)
 005             Adrian (done)
-006             DeBrito
+006             DeBrito (initially looked at height proportions but validated with numbers when in between ticks)
 007             Bennet
 008             Butters
 009             McVeigh
