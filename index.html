@@ -726,7 +726,7 @@
 
         const truePercent = computeTruePercent(trial.values, trial.marked);
         const absErr = Math.abs(reported - truePercent);
-        const log2Error = Math.log2(absErr + 1 / 8);
+        const log2Error = (absErr === 0) ? 0 : Math.log2(absErr + 1/8);
 
         state.results.push({
           participantId: state.participantId,
