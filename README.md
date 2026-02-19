@@ -2,7 +2,7 @@ Assignment 3 - Replicating a Classic Experiment
 ===
 
 ## Link
-- **GitHub Pages Link:** link
+- **GitHub Pages Link:** https://diwakarsandhu1.github.io/a3-experiment/
 - **Repository Link:** https://github.com/diwakarsandhu1/a3-experiment
 
 ## Overview
