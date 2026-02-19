@@ -8,23 +8,26 @@ Assignment 3 - Replicating a Classic Experiment
 ## Overview
 In this project, we recreated a controlled visualization experiment inspired by Cleveland & McGill (1984) and later replications. Participants completed a sequence of randomized trials where two values in a chart were marked and they estimated **"what percent is the smaller of the larger?"**. We comparied the accuracy across three visualization conditions: Bar, Comparative Bar, and stacked Bar. Responses were graded by computeing the true percent against the reported percent for each trial using the Cleveland-McGill log-base-2 error metric.
 
-## Experiment Screenshots (TBD)
-- show UI screenshots of each page/stage of the experiment
+## Experiment Screenshots
+![Welcome Page](img/welcome.png)
+![Instrucitons Page](img/instructions.png)
+![Trials Page](img/trials.png)
+![Results Page](img/results.png)
 
 ## Conditions (Visualizations Tested)
 **Overall Goal:** To test how visualization design affects ratio-judgement accuracy, with our overall hypothesis being that the closer the two marked values are (spatially), the easier it is to compare their lengths and estimate the ratio, leading to a lower log2error.
 
-### 1. Bar Chart (TBD)
-- **Hypothesis:**
-- Include example screenshot
+### 1. Bar Chart
+**Hypothesis:** Participants will be the least accurate in this condition because although the marked values are shown as simple heights/lengths from a common baseline, they can be spatially far away, making it difficult to calculate the ratio between the smaller and larger.
+![Bar Chart](img/bar.png)
 
-### 2. Comparative Bar Chart (TBD)
-- **Hypothesis:**
-- Include example screenshot
+### 2. Comparative Bar Chart
+**Hypothesis:** Participants will be more accurate in this condition than Bar because the marked values are still shown as simple heights/lengths from a common baseline, but we make them spatially closer by removing the gaps.
+![Comparative Bar Chart](img/comparativeBar.png)
 
-### 3. Stacked Bar Chart (TBD)
-- **Hypothesis:**
-- Include example screenshot
+### 3. Stacked Bar Chart
+**Hypothesis:** Participants will be the most accurate in this condition because the values are stacked on top of each other, making it easier to gauge the ratio of the smaller marked value to the larger.
+![Stacked Bar Chart](img/stackedBar.png)
 
 ## Procedure
 - 60 trials per participant (20 trials per condition)
@@ -45,21 +48,19 @@ In this project, we recreated a controlled visualization experiment inspired by 
 - **log2error** = log2(|ReportedPercent - TruePercent| + 1/8)
 - **Special Error Case:** if ReportedPercent == TruePercent, set Error to **0** (instead of log2(1/8) = -3)
 
-## Results (TBD)
-- report the order in which the visualizations yielded the best results and report their log2 error
-- 1. Best Condition: 
-- 2. Second Best Condition: 
-- 3. Third Best Condition:
+## Output Data
+The experiemnt logs one row per trial in a CSV-ready format. Each row contains the participant ID, trial number, visualization condition, the generated data values, the indices of the marked values, the participant's report percentage, the computed true percent, and the resulting log2error. At the end of a participants's trials, the CSV can be copied and appended to a master dataset combining all participants and trials.
 
-## Figures (TBD)
-- visualize results from data analysis
+## Results (TODO)
+report the order in which the visualizations yielded the best results and report their log2 error
+1. Best Condition: 
+2. Second Best Condition: 
+3. Third Best Condition:
+
+## Figures (TODO)
+- visualize results from data analysis to support above results
 - 95% CI error bars
 - explain all visualization results
-
-## Data (TBD)
-- explain data from results
-- how we copied each participants' results and pasted them into master.csv for analysis
-- what columns we output
 
 ## Technical Achievements
 - Multi-screen experiemnt flow (Welcome -> Instrictions -> Trials -> Results)
