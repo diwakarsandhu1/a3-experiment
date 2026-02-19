@@ -5,7 +5,7 @@ List people we can ask:
 
 ParticipantID   Name
 001             Lutz (did not understand what stacked bar was showing)
-002             Marsh
+002             Marsh (bar distance didn't really affect him, focused on the numbers)
 003             Pat (mostly size ratio, sometimes the math. If the bars were further, would rely on the math.)
 004             Maher (didn't look at numbers, looked at proportions)
 005             Adrian (done)
