@@ -49,25 +49,51 @@ In this project, we recreated a controlled visualization experiment inspired by 
 ## Output Data
 The experiemnt logs one row per trial in a CSV-ready format. Each row contains the participant ID, trial number, visualization condition, the generated data values, the indices of the marked values, the participant's report percentage, the computed true percent, and the resulting log2error. At the end of a participants's trials, the CSV can be copied and appended to a master dataset combining all participants and trials.
 
-## Results (TODO)
-report the order in which the visualizations yielded the best results and report their log2 error
-1. Best Condition: 
-2. Second Best Condition: 
-3. Third Best Condition:
+## Figures
 
-## Figures (TODO)
-- visualize results from data analysis to support above results
-- 95% CI error bars
-- explain all visualization results
+### Figure 1 (Mean Log2Error by Condition, Bootstrapped 95% CI)
+![Mean Log2Error by Condition, Bootstrapped 95% CI](img/mean95ci.png)
+
+Mean log2Error for each visualization condition, aggregated across all participants and trials. Error bars show bootstrapped 95% confidence intervals, and the conditions are ordered from lowest to highest mean error. Bar has the lowest average error, ComparativeBar is slightly higher, and StackedBar is highest with the widest uncertainty.
+
+### Figure 2 (Distribution of log2Error by Condition)
+![Distribution of log2Error by Condition](img/errorDistribution.png)
+
+Boxplots show the distribution of trial-level log2Error for each condition, showing medians, IQR, and outliers. Bar and ComparativeVar have similar central tendency and spread, while StackedBar has greater variability and more high-error trials. This suggests that the stacked chart is less stable and more error-prone.
+
+### Figure 3 (Participant-wise Mean log2Error Across Conditions)
+![Participant-wise Mean log2Error Across Conditions](img/participantMeanError.png)
+
+Each line represents a participant's mean log2Error in each condition, showing individual differences and whether the overall pattern holds across people. Most participants show relatively similar performance on Bar and ComparativeBar, with more error on StackedBar. 
+
+### Figure 4 (Error Over Time, Binned by Trial Number)
+![Error Over Time, Binned by Trial Number](img//errorOverTime.png)
+
+Mean log2Error over the course of the experiment with trials grouped into bins, representing trials from early to late for each condition. The trends are not strongly consistent across conditions, meaning that there is limited evidence of a uniform learning or fatigue effect. Small shifts across bins may reflect nosie or participant-specific strategies rather than a universal time effect.
+
+
+## Results
+We collected 600 total trials (200 per condition) from 10 participants. Figure 1 above shows the mean log2Error per condition with bootstrapped 95% confidence intervals. Overall, **Bar** performed best, followed by **ComparativeBar**, and then **StackedBar**.
+- **Bar:** Mean log2Error = 1.47 (95% CI [1.20,1.72])
+- **ComparativeBar:** Mean log2Error = 1.59 (95% CI [1.33, 1.89])
+- **StackedBar:** Mean log2Error = 2.01 (95% CI [1.46, 2.90])
+
+Bar and ComparativeBar are relatively close in performace and their confidence intervals overap, meaning that the difference between them is small. However, StackedBar shows noticabely higher average error and a much wider confidence interval, indicating both poorer performance and greater variability.
+
+One important factor that may have influences performance is that our charts included y-axis tick marks and gridlines, which encouraged some participants to compute the ratio using the axis rather than relying purely on visual perception of proportion. We heard mixed strategies across participants, roughly split 50/50 between using the visual proportions vs using the axis as a measuring tool. However, we also received feedback that the ComparativeBar condition made this math-approach harder, because it was difficult to visually trace a bar's height across the y-axis.
+
+Our original hypothesis also was not fully supported. We expected StackedBar to produce the lowest error because it seems like it should "naturally" communicate proportions. Instead, StackedBar produced the highest error, and participant feedback showed that the stacked encoding was more confusing than expected. Even if the design looks like it should emphasize proportion, it was difficult for participants to understand. 
+
+For future iterations, we would adjust the design to better isolate visual judgement from measurement. For example, we would remove or greatly reduce y-axis tick marks/gridlines so participants cannot easily read values, and redesign how we mark values and lay them out (especially for StackedBar) to make the comparisons unambiguous. This would better test perceptual accuracy of the visual encodings themselves, rather than a 50/50 split of visual estimation and axis-based calculation. 
 
 ## Technical Achievements
 - Multi-screen experiemnt flow (Welcome -> Instrictions -> Trials -> Results)
 - Randomized trial generation
-- D3 rendering for three separate visualizations
 - Keyboard submits, progess indicator, etc.
 - Response validation, logging, and CSV output
 
 ## Design Achievements
+- D3 rendering for three separate visualizations
 - Clear markings with red color
 - Consistent scale across conditions
 
