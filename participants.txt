@@ -10,7 +10,7 @@ ParticipantID   Name
 004             Maher (didn't look at numbers, looked at proportions)
 005             Adrian (done)
 006             DeBrito (initially looked at height proportions but validated with numbers when in between ticks)
-007             Bennet
+007             Morgan (would look at numbers and do a rough estimate on the math and confirmed with bars to make sure it made sense visually)
 008             Butters
 009             McVeigh
 010             Bailey
