@@ -11,6 +11,6 @@ ParticipantID   Name
 005             Adrian (done)
 006             DeBrito (initially looked at height proportions but validated with numbers when in between ticks)
 007             Morgan (would look at numbers and do a rough estimate on the math and confirmed with bars to make sure it made sense visually)
-008             Butters
-009             McVeigh
+008             Diesel (focused more on height proportions than numbers)
+009             Ken 
 010             Bailey
