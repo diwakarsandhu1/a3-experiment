@@ -6,7 +6,7 @@ Assignment 3 - Replicating a Classic Experiment
 - **Repository Link:** https://github.com/diwakarsandhu1/a3-experiment
 
 ## Overview
-In this project, we recreated a controlled visualization experiment inspired by Cleveland & McGill (1984) and later replications. Participants completed a sequence of randomized trials where two values in a chart were marked and they estimated **"what percent is the smaller of the larger?"**. We comparied the accuracy across three visualization conditions: Bar, Comparative Bar, and stacked Bar. Responses were graded by computeing the true percent against the reported percent for each trial using the Cleveland-McGill log-base-2 error metric.
+In this project, we recreated a controlled visualization experiment inspired by Cleveland & McGill (1984) and later replications. Participants completed a sequence of randomized trials where two values in a chart were marked and they estimated **"what percent is the smaller of the larger?"**. We comparied the accuracy across three visualization conditions: Bar, Comparative Bar, and Stacked Bar. Responses were graded by computeing the true percent against the reported percent for each trial using the Cleveland-McGill log-base-2 error metric.
 
 ## Experiment Screenshots
 ![Welcome Page](img/welcome.png)
@@ -15,10 +15,10 @@ In this project, we recreated a controlled visualization experiment inspired by 
 ![Results Page](img/results.png)
 
 ## Conditions (Visualizations Tested)
-**Overall Goal:** To test how visualization design affects ratio-judgement accuracy, with our overall hypothesis being that the closer the two marked values are (spatially), the easier it is to compare their lengths and estimate the ratio, leading to a lower log2error.
+**Overall Goal:** To test how visualization design affects ratio-judgement accuracy, with our overall hypothesis being that the closer the two marked values are spatially because of the type of visualization, the easier it is to compare their lengths and estimate the ratio, leading to a lower log2error.
 
 ### 1. Bar Chart
-**Hypothesis:** Participants will be the least accurate in this condition because although the marked values are shown as simple heights/lengths from a common baseline, they can be spatially far away, making it difficult to calculate the ratio between the smaller and larger.
+**Hypothesis:** Participants will be the least accurate in this condition because although the marked values are shown as simple heights/lengths from a common baseline, they can be spatially far away because of the distance between the bars, making it difficult to calculate the ratio between the smaller and larger.
 ![Bar Chart](img/bar.png)
 
 ### 2. Comparative Bar Chart
